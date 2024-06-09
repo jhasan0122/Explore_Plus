@@ -40,7 +40,9 @@ if(isset($_GET['filter_date'])){
 
 if(isset($_GET['searchSubmit'])){
     $find = $_GET['search'];
-    $sql = "SELECT * FROM tourTable WHERE (continent LIKE '%{$find}%') or (country LIKE '%{$find}%') or (city LIKE '%{$find}%') or (place_name LIKE '%{$find}%')";
+    $sql = "SELECT * FROM tourTable WHERE (continent LIKE '%{$find}%') or
+                (country LIKE '%{$find}%') or (city LIKE '%{$find}%') or 
+                (place_name LIKE '%{$find}%')";
 }
 
 if(isset($_GET['category']) && isset($_GET['continent'])){

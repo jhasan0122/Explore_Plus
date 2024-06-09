@@ -62,6 +62,7 @@ if(isset($_GET['payment'])){
                 VALUES ({$child}, {$adult}, {$senior}, '{$email}', '{$phone}')")){
                 $booking_id = mysqli_insert_id($conn);
 
+
                 if(mysqli_query($conn,"INSERT INTO enrollment (username, booking_id, tour_id)
                 VALUES ('{$username}', {$booking_id}, {$tour})")){
                     mysqli_query($conn, "COMMIT");

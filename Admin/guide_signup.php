@@ -102,7 +102,7 @@ if(isset($_POST['register'])){
 
 
     if(array_filter($error)){
-        echo "ERRRRORRR";
+
     }
     else{
         $name = mysqli_real_escape_string($conn,$_POST['name']);

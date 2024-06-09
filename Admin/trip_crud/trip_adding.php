@@ -301,15 +301,15 @@ if(isset($_POST['add_trip'])){
             <p class="form__p p_option">
                 <?php
 
-                $sqlRestaurant = "select menu.menu_id , breakfast_item.breakfast , lunch_item.lunch , dinner_item.dinner
+                $sqlRestaurant = "select menu.menu_id as menu_id , breakfast_item.breakfast , lunch_item.lunch , dinner_item.dinner
                             from menu
-                            inner join menu_breakfast mb
+                            left join menu_breakfast mb
                             on menu.menu_id = mb.menu_id
 
-                            inner join breakfast_item
+                            left join breakfast_item
                             on mb.breakfast = breakfast_item.breakfast
 
-                            inner join menu_lunch
+                            left join menu_lunch
                             on menu.menu_id = menu_lunch.menu_id
 
                             inner join lunch_item
@@ -320,7 +320,7 @@ if(isset($_POST['add_trip'])){
 
                             inner join dinner_item
                             on menu_dinner.dinner = dinner_item.dinner
-                            ORDER BY menu.menu_id ASC;
+                            group BY menu.menu_id ASC;
                             ";
 //                $sqlRestaurant = "SELECT * FROM menu";
                 $restaurantResult = mysqli_query($conn,$sqlRestaurant);

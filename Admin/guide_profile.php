@@ -18,6 +18,17 @@ $info = mysqli_fetch_assoc($result);
 
 //mysqli_close($conn);
 
+if($info['photo'] == null){
+    $data = "file:///C:/xampp/htdocs/Explore_Plus/img/userdp/blankDP.webp";
+    $imageData = $data;
+}
+else{
+    $data = $info['photo'];
+    $imageData = base64_encode($data);
+}
+
+
+
 
 ?>
 
@@ -68,7 +79,16 @@ $info = mysqli_fetch_assoc($result);
     </div>
     <div class="profile__pic">
       <figure>
-        <img src="../img/userdp/IMG-20231216-WA0025.jpg" alt="dp" width="750" height="750">
+          <?php
+          if($info['photo'] == null){
+              ?>
+              <img src="../img/userdp/blankDP.webp" alt="black dp">
+              <?php
+          }
+          else{
+              echo '<img src="data:image;base64,' . $imageData . '"width="750" height="750"">';
+          }
+          ?>
       </figure>
     </div>
 

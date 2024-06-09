@@ -56,7 +56,7 @@
             <th scope="col" class="table__head">Visa exp</th>
             <th scope="col" class="table__head">Languages</th>
             <th scope="col" class="table__head">Wage</th>
-            <th  scope="col" class="table__head">Photo</th>
+<!--            <th  scope="col" class="table__head">Photo</th>-->
             <th  scope="col" class="table__head">Edit</th>
         </tr>
         </thead>
@@ -98,12 +98,12 @@
                     endforeach;
                     ?></td>
                 <td class="table__item"><?php echo htmlspecialchars($guide['wage'])?></td>
-                <td class="table__item">
-                    <div class="hotel__pic">
-                        <figure>
-                            <img src="../img/hotel/vojtech-bruzek-Yrxr3bsPdS0-unsplash.jpg" alt="hotel1" width="4608" height="3072">
-                        </figure>
-                    </div>
+<!--                <td class="table__item">-->
+<!--                    <div class="hotel__pic">-->
+<!--                        <figure>-->
+<!--                            <img src="../img/hotel/vojtech-bruzek-Yrxr3bsPdS0-unsplash.jpg" alt="hotel1" width="4608" height="3072">-->
+<!--                        </figure>-->
+<!--                    </div>-->
                 </td>
                 <td class="table__item edit_option">
                     <button type="submit" name="edit" class="table_edit"><a href="guide_edit.php?guide_username=<?php echo $guide['username']?>">Edit</a></button>

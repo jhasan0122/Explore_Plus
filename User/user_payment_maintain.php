@@ -12,9 +12,10 @@ if(isset($_POST['checkout'])){
     ob_start();
     session_start();
     $username = $_SESSION['username'];
-
+    $booking_id = $_SESSION['booking_id'];
     $tour = $_POST['tour_id'];
     $payment = $_POST['payment_method'];
+
 
     if(mysqli_query($conn, "START TRANSACTION")){
         $moneyQ = "Select budget from tour where tour_id = '{$tour}'";
@@ -33,14 +34,13 @@ if(isset($_POST['checkout'])){
             $avail_Seat=(int)$availableSeat['available_seat'];
 
 
-            $booking_id = $_SESSION['booking_id'];
-            $_SESSION['booking_id'] = "";
+
 
             if(mysqli_query($conn, "update enrollment
-                                set payment_id = {$payment_id}
-                                where booking_id = {$booking_id}
+                                set payment_id = '{$payment_id}'
+                                where booking_id = '{$booking_id}'
                                 ")){
-                $bookSeatQ = mysqli_query($conn, "SELECT (b.child+b.adult+b.senior)
+                $bookSeatQ = mysqli_query($conn, "SELECT (b.child+b.adult+b.senior) as totalPerson
                                                     FROM tour t 
                                                     INNER JOIN enrollment e 
                                                     on t.tour_id = e.tour_id
@@ -50,7 +50,7 @@ if(isset($_POST['checkout'])){
                                                     on p.payment_id=e.payment_id
                                                     where p.payment_id = '{$payment_id}'");
                 $bookSeatR = mysqli_fetch_assoc($bookSeatQ);
-                $bookSeat = $bookSeatR['(b.child+b.adult+b.senior)'];
+                $bookSeat = $bookSeatR['totalPerson'];
 
                 if($avail_Seat >= $bookSeat){
                     if(mysqli_query($conn,"update payment
@@ -58,9 +58,10 @@ if(isset($_POST['checkout'])){
                                                WHERE payment_id={$payment_id}")){
                         mysqli_query($conn, "COMMIT");
                         $sql = "UPDATE tour t                            
-                                        SET t.available_seat = (t.available_seat - {$bookSeat})
+                                        SET t.available_seat = (t.available_seat - '{$bookSeat}')
                                         where t.tour_id = {$tour};";
                         if (mysqli_query($conn, $sql)) {
+
                             header("Location: http://localhost/explore_plus/User/main.php");
                             echo "Success";
                         } else {
@@ -76,7 +77,7 @@ if(isset($_POST['checkout'])){
                 }
             }
             else{
-                echo "ERROR3";
+                echo mysqli_error($conn);
             }
         }
         else{

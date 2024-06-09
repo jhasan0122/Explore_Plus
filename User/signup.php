@@ -22,18 +22,34 @@ function sendMail($email,$v_code){
 
     try {
         //Server settings
+//
+//        $mail->isSMTP();                                            //Send using SMTP
+//        $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+//        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+//        $mail->Username   = 'jhasan0122@gmail.com';                     //SMTP username
+//        $mail->Password   = '9248@Ramos@WithSiuuu';                               //SMTP password
+//        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption
+//        $mail->Port       = 587;
 
-        $mail->isSMTP();                                            //Send using SMTP
-        $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = 'jhasan0122@gmail.com';                     //SMTP username
-        $mail->Password   = '9248@Ramos@WithSiuuu';                               //SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption
-        $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        $mail = new PHPMailer();
+        $mail->SMTPDebug = 2;
+        $mail->Debugoutput = 'html';
+
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'jhasan0122@gmail.com';
+        $mail->Password = '9248@Ramos@WithSiuuu';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 465;
+
+
+        //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
         $mail->setFrom('jhasan0122@gmail.com', 'Jehan Hasan');
-        $mail->addAddress($email);     //Add a recipient
+        $mail->addAddress($_POST['email'],$_POST['name']);     //Add a recipient
 
 
         //Content
@@ -43,11 +59,12 @@ function sendMail($email,$v_code){
                           Click the link below to varify
                           <a href='http://localhost/explore_plus/Security/varify_email.php?email=$email&vcode=$v_code'>verify</a>";
 
-
+        $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         $mail->send();
         return true;
     } catch (Exception $e) {
         echo $e;
+        return false;
     }
 }
 
@@ -63,15 +80,18 @@ if(isset($_POST['register'])){
         $name = $_POST['name'];
     }
 
+
+
     if(empty($_POST['user_name'])){
         $error['user_name'] = "Username is required";
     }
     else{
+
         $user_name = $_POST['user_name'];
     }
 
     if(empty($_POST['password'])){
-        $error['password'] = "Username is required";
+        $error['password'] = "Password is required";
     }
     else{
         $password = $_POST['password'];
@@ -126,9 +146,30 @@ if(isset($_POST['register'])){
         $language = $_POST['language'];
     }
 
-        $past_trip = $_POST['past_trip'];
-        $profile_pic = $_POST['profile_pic'];
+    $past_trip = $_POST['past_trip'];
+//    $profile_pic = $_POST['profile_pic'];
 
+    $findUsernameUNSql = "select * from userpro where username = '{$user_name}'";
+    $findUsernameUNRes = mysqli_query($conn,$findUsernameUNSql);
+    if(mysqli_num_rows($findUsernameUNRes) > 0){
+        echo "<script>
+                    alert('signup unsuccessful,You have entered duplicated username');
+                </script>";
+        $error['user_name'] = "The username is duplicated";
+
+    }
+
+
+    $findUsernameEmSql = "select * from userpro where email = '{$email}'";
+    $findUsernameEmRes = mysqli_query($conn,$findUsernameEmSql);
+    if(mysqli_num_rows($findUsernameEmRes) > 0){
+        echo "<script>
+                    alert('signup unsuccessful,You have entered duplicated email ');
+                </script>";
+
+        $error['email'] = "The email is duplicated";
+
+    }
 
 
     if(array_filter($error)){
@@ -138,7 +179,7 @@ if(isset($_POST['register'])){
         $name = mysqli_real_escape_string($conn,$_POST['name']);
         $user_name = mysqli_real_escape_string($conn,$_POST['user_name']);
         $password = mysqli_real_escape_string($conn,$_POST['password']);
-        $v_code = bin2hex(random_bytes(16));
+//        $v_code = bin2hex(random_bytes(16));
 //        echo $v_code;
         $hash = password_hash($password,PASSWORD_DEFAULT);
 
@@ -150,12 +191,13 @@ if(isset($_POST['register'])){
         $gender = mysqli_real_escape_string($conn,$_POST['gender']);
         $language = mysqli_real_escape_string($conn,$_POST['language']);
         $past_trip = mysqli_real_escape_string($conn,$_POST['past_trip']);
-//        $profile_pic = mysqli_real_escape_string($conn,$_POST['profile_pic']);
+        $profile_pic = $_POST['profile_pic'];
 
 
-        $sql = "INSERT INTO userpro (name,username,password,email,date_of_birth,phone,city,country,gender,language,past_trip,varification_code,is_varified)
-            VALUES ('{$name}','{$user_name}','{$hash}','{$email}','{$dob}','{$phone}','{$city}','{$country}','{$gender}','{$language}','{$past_trip}','$v_code','0')";
+        $sql = "INSERT INTO userpro (name,username,password,email,date_of_birth,phone,city,country,gender,language,past_trip,photo,varification_code,is_varified)
+            VALUES ('{$name}','{$user_name}','{$hash}','{$email}','{$dob}','{$phone}','{$city}','{$country}','{$gender}','{$language}','{$past_trip}','{$profile_pic}','$v_code','0')";
 
+//
         if(mysqli_query($conn,$sql)){
 
             session_start();
@@ -168,7 +210,10 @@ if(isset($_POST['register'])){
             header('Location: http://localhost/explore_plus/User/main.php');
         }
         else{
-            echo "Query error" . mysqli_error($conn);
+            echo "<script>
+                    alert('signup unsuccessful,You have entered duplicated username or email ');
+                </script>";
+//            echo "Query error" . mysqli_error($conn);
         }
 
         mysqli_close($conn);
@@ -222,65 +267,76 @@ if(isset($_POST['register'])){
         <fieldset class="form__fieldset">
             <p class="form__p">
                 <label class="form__label" for="name">Name:</label>
-                <input class="form__input" type="text" name="name" id="name"  required autofocus>
-                <div class="danger center"><p><?php echo $error['name'] ?></p></div>
+                <input class="form__input" type="text" name="name" id="name" value="<?php echo htmlspecialchars($name) ?>" value="<?php echo htmlspecialchars($username) ?>">
+                <div class="error"><?php echo $error['name'] ?></div>
             </p>
             <p class="form__p">
                 <label class="form__label" for="user_name">Username:</label>
-                <input class="form__input" type="text" name="user_name" id="user_name"  required autofocus>
-                <div class="danger center"><p><?php echo $error['user_name'] ?></p></div>
+                <input class="form__input" type="text" name="user_name" id="user_name" value="<?php echo htmlspecialchars($user_name) ?>">
+            </p>
+            <p>
+            <div class="error"><?php echo $error['user_name'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['user_name'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="password">Password:</label>
-                <input class="form__input" type="password" name="password" id="password"  required autofocus>
-                <div class="danger center"><p><?php echo $error['password'] ?></p></div>
+                <input class="form__input" type="password" name="password" id="password" value="<?php echo htmlspecialchars($password) ?>">
+                <div class="error"><?php echo $error['password'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['password'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="email">Email</label>
-                <input class="form__input" type="email" name="email" id="email"  required autofocus>
-                <div class="danger center"><p><?php echo $error['email'] ?></p></div>
+                <input class="form__input" type="email" name="email" id="email"  value="<?php echo htmlspecialchars($email) ?>">
+                <div class="error"><?php echo $error['email'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['email'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="dob">Date Of Birth</label>
-                <input class="form__input" type="date" name="dob" id="dob"  required autofocus>
-                <div class="danger center"><p><?php echo $error['dob'] ?></p></div>
+                <input class="form__input" type="date" name="dob" id="dob" value="<?php echo htmlspecialchars($dob) ?>">
+                <div class="error"><?php echo $error['dob'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['dob'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="phone">Phone</label>
-                <input class="form__input" type="number" name="phone" id="phone"  required autofocus>
-                <div class="danger center"><p><?php echo $error['phone'] ?></p></div>
+                <input class="form__input" type="number" name="phone" id="phone"  value="<?php echo htmlspecialchars($phone) ?>">
+                <div class="error"><?php echo $error['phone'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['phone'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="city">City</label>
-                <input class="form__input" type="text" name="city" id="city" required autofocus>
-                <div class="danger center"><p><?php echo $error['city'] ?></p></div>
+                <input class="form__input" type="text" name="city" id="city" value="<?php echo htmlspecialchars($city) ?>">
+                <div class="error"><?php echo $error['city'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['city'] ?><!--</p></div>-->
             </p>
             <p class="form__p">
                 <label class="form__label" for="country">Country</label>
-                <input class="form__input" type="text" name="country" id="country"  required autofocus>
-                <div class="danger center"><p><?php echo $error['country'] ?></p></div>
+                <input class="form__input" type="text" name="country" id="country" value="<?php echo htmlspecialchars($country) ?>" >
+                <div class="error"><?php echo $error['country'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['country'] ?><!--</p></div>-->
             </p>
 
             <p class="form__p radio__p">
                 <label class="form__label">Gender</label>
             <div class="radio__div">
-                <input class="radio__input" type="radio" name="gender" value="male">
+                <input class="radio__input" type="radio" name="gender" value="male" <?php echo (isset($gender) && $gender == 'male') ? 'checked' : ''; ?>>
                 <label class="radio__label" for="male">Male</label>
             </div>
             <div class="radio__div">
-                <input class="radio__input" type="radio" name="gender" value="female">
+                <input class="radio__input" type="radio" name="gender" value="female" <?php echo (isset($gender) && $gender == 'female') ? 'checked' : ''; ?>>
                 <label class="radio__label" for="female">Female</label>
-                <div class="danger center"><p><?php echo $error['gender'] ?></p></div>
+                <div class="error"><?php echo $error['gender'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['gender'] ?><!--</p></div>-->
             </div>
             </p>
             <p class="form__p">
                 <label class="form__label" for="language">Language</label>
-                <input class="form__input" type="text" name="language" id="language"  required autofocus>
-                <div class="danger center"><p><?php echo $error['language'] ?></p></div>
+                <input class="form__input" type="text" name="language" id="language" value="<?php echo htmlspecialchars($language) ?>">
+            <div class="error"><?php echo $error['language'] ?></div>
+<!--                <div class="danger center"><p>--><?php //echo $error['language'] ?><!--</p></div>-->
             </p>
             <p class="form__p form_area">
                 <label class="form__label" for="past_trip">Past Trip</label>
-                <textarea class="form__textarea" name="past_trip" id="past_trip" cols="10" rows="6"></textarea>
+                <textarea class="form__textarea" name="past_trip" id="past_trip" cols="10" rows="6"><?php echo htmlspecialchars($past_trip) ?></textarea>
             </p>
             <p class="form__p">
                 <label class="form__label" for="profile_pic">Profile Pic&nbsp;&nbsp;&nbsp;</label>
@@ -289,8 +345,6 @@ if(isset($_POST['register'])){
             <p class="form__p">
                 <button class="login__button form_spc" type="submit" name="register">Register</button>
             </p>
-
-
         </fieldset>
 
     </form>

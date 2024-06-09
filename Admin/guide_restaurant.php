@@ -9,9 +9,9 @@ if(!$conn){
 session_start();
 $guide_username = $_SESSION['guide_username'];
 
-$sql = "SELECT t.tour_id ,(t.capacity - t.available_seat) as booked_seat, sum(breakfast_item.bcost) *(t.capacity - t.available_seat) as break_cost,
-sum(lunch_item.lcost) *(t.capacity - t.available_seat) as lunch_cost,sum(dinner_item.dcost) *(t.capacity - t.available_seat) as dinner_cost,
-(sum(breakfast_item.bcost) *(t.capacity - t.available_seat)  + sum(lunch_item.lcost) *(t.capacity - t.available_seat) + sum(dinner_item.dcost) *(t.capacity - t.available_seat)) as total_cost, mb.breakfast,menu_lunch.lunch,menu_dinner.dinner
+$sql = "SELECT t.tour_id ,(t.capacity - t.available_seat) as booked_seat,(breakfast_item.bcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) as break_cost,
+(lunch_item.lcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date))  as lunch_cost,(dinner_item.dcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date))  as dinner_cost,(breakfast_item.bcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) + (lunch_item.lcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) + (dinner_item.dcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date))
+ as total_cost, mb.breakfast,menu_lunch.lunch,menu_dinner.dinner
         FROM  guide g 
         INNER JOIN tour t
         ON t.guide_username = g.username

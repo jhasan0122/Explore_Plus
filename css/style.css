@@ -1318,7 +1318,7 @@ a:focus {
 }
 
 .main__feed{
-    background-color: #020202FF;
+    background-color: whitesmoke;
     min-height: 500vh;
     display: flex;
     justify-content: center;
@@ -1494,3 +1494,8 @@ a:focus {
     color: black;
 }
 
+.error{
+    color: red;
+    padding: 10px 0;
+    font-weight: 600;
+}

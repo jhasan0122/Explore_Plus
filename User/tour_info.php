@@ -215,27 +215,27 @@ mysqli_free_result($result);
 
                             $menuResult = mysqli_query($conn,$menuSql);
 
-                            $menus = mysqli_fetch_all($menuResult,MYSQLI_ASSOC);
+                            $menus = mysqli_fetch_assoc($menuResult);
 
                             ?>
 
 
-                            <?php foreach ($menus as $menu): ?>
+<!--                            --><?php //foreach ($menus as $menu): ?>
                             <li>
                                 <div class="tour-info__fromTo">
                                     <span class="tour-info__name">Breakfast:</span>
-                                    <span class="tour-info__data"><?php echo $menu['breakfast'] ?></span>
+                                    <span class="tour-info__data"><?php echo $menus['breakfast'] ?></span>
                                 </div>
                                 <div class="tour-info__fromTo">
                                     <span class="tour-info__name">lunch:</span>
-                                    <span class="tour-info__data"><?php echo $menu['lunch'] ?></span>
+                                    <span class="tour-info__data"><?php echo $menus['lunch'] ?></span>
                                 </div>
                                 <div class="tour-info__fromTo">
                                     <span class="tour-info__name">Dinner:</span>
-                                    <span class="tour-info__data"><?php echo $menu['dinner']?></span>
+                                    <span class="tour-info__data"><?php echo $menus['dinner']?></span>
                                 </div>
                             </li>
-                            <?php endforeach; ?>
+<!--                            --><?php //endforeach; ?>
                         </ul>
                     </div>
                 </div>

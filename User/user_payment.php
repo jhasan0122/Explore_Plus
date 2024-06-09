@@ -1,5 +1,9 @@
-<?php ob_start(); session_start();
+<?php
+ob_start();
+session_start();
 $user = $_SESSION['username'];
+$booking_id =  $_SESSION['booking_id'];
+//$_SESSION['booking_id'] = "";
 
 ?>
 <!DOCTYPE html>
@@ -79,13 +83,14 @@ $user = $_SESSION['username'];
                     $tour = $_GET['tour_id'];
 
 
+
                     $moneyQ = "SELECT t.budget,((b.child+b.adult+b.senior)*t.budget) as total
                                 from tour t
-                                INNER join enrollment e 
+                                right join enrollment e 
                                 on t.tour_id = e.tour_id
-                                inner join booking b
+                                right join booking b
                                 on e.booking_id = b.booking_id
-                                WHERE t.tour_id = {$tour}";
+                                WHERE t.tour_id = '{$tour}' and e.username='{$user}' and b.booking_id = '{$booking_id}'";
                     $resultQ = mysqli_query($conn,$moneyQ);
 
                     $money = mysqli_fetch_assoc($resultQ);

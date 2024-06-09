@@ -6,22 +6,26 @@ if(!$conn){
     echo "Connection Error" . mysqli_connect_error() . '<br>';
 }
 
-$sql = "SELECT t.tour_id ,t.place_name ,t.budget*t.capacity as total_budget ,t.capacity - t.available_seat as booked_seat ,IFNULL(p.amount,0) as revenue ,DATEDIFF(t.finish_date,t.start_date)  as duration,
-            sum(breakfast_item.bcost) *(t.capacity - t.available_seat) as break_cost, sum(lunch_item.lcost) *(t.capacity - t.available_seat) as lunch_cost,sum(dinner_item.dcost) *(t.capacity - t.available_seat) as dinner_cost,
-            sum(breakfast_item.bcost) *(t.capacity - t.available_seat)  + sum(lunch_item.lcost) *(t.capacity - t.available_seat) + sum(dinner_item.dcost) *(t.capacity - t.available_seat) as food_cost
-            , h.price*CEIL((t.capacity - t.available_seat)/4) as hotel_cost, sum((t.capacity - t.available_seat)*tr.price) as trans_cost,g.wage as guide_cost
+$sql = "SELECT t.tour_id ,t.place_name ,t.budget*t.capacity as total_budget ,
+       (t.capacity - t.available_seat) as booked_seat ,(IFNULL(t.budget,0)*(t.capacity - t.available_seat))as revenue ,
+       DATEDIFF(t.finish_date,t.start_date)  as duration,(breakfast_item.bcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) as break_cost,
+            (lunch_item.lcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date))  as lunch_cost,
+            (dinner_item.dcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date))  as dinner_cost,
+            (breakfast_item.bcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) + (lunch_item.lcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) + (dinner_item.dcost*(t.capacity - t.available_seat)*DATEDIFF(t.finish_date,t.start_date)) as food_cost
+            , (h.price*CEIL((t.capacity - t.available_seat)/4)*DATEDIFF(t.finish_date,t.start_date)) as hotel_cost,
+              ((SELECT sum(tr.price) from transport tr where tr.tour_id IS NOT NULL and tr.tour_id=t.tour_id)*(t.capacity - t.available_seat))as trans_cost, g.wage as guide_cost
             from tour t
             
-            left join enrollment e 
+            left join enrollment e  
             on t.tour_id = e.tour_id
             
             left join payment p 
             on e.payment_id = p.payment_id
             
-            left join hotel h 
+            inner join hotel h 
             on t.hotel_id = h.hotel_id
             
-            left join menu
+            inner join menu
             on t.menu_id = menu.menu_id
             inner join menu_breakfast mb 
             on menu.menu_id = mb.menu_id
@@ -40,13 +44,10 @@ $sql = "SELECT t.tour_id ,t.place_name ,t.budget*t.capacity as total_budget ,t.c
             
             inner join dinner_item  
             on menu_dinner.dinner = dinner_item.dinner
-            
-             inner join transport tr 
-             on tr.tour_id = t.tour_id
-            
+
             inner join guide g 
              on g.username = t.guide_username
-        
+         
             group by t.tour_id";
 
 
